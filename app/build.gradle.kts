@@ -1,6 +1,9 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
 }
@@ -25,7 +28,7 @@ android {
             // Loaded from keystore.properties if present
             val keystorePropertiesFile = rootProject.file("keystore.properties")
             if (keystorePropertiesFile.exists()) {
-                val properties = java.util.Properties().apply {
+                val properties = Properties().apply {
                     load(keystorePropertiesFile.inputStream())
                 }
                 storeFile = rootProject.file(properties.getProperty("storeFile"))
@@ -66,9 +69,6 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.14"
     }
     packaging {
         resources {

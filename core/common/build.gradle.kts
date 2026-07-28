@@ -20,4 +20,5 @@ android {
 
 dependencies {
     api(libs.kotlinx.coroutines.android)
+    api("javax.inject:javax.inject:1")
 }
