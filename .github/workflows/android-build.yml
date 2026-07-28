@@ -59,10 +59,12 @@ jobs:
             ${{ runner.os }}-gradle-
 
       - name: Build debug APK
-        run: gradle assembleDebug --stacktrace
+        # CI's ubuntu-latest has system Gradle 8.1 (too old for AGP 8.5).
+        # Use the Gradle 8.10 installed by setup-gradle via $GRADLE_HOME.
+        run: '"$GRADLE_HOME/bin/gradle" assembleDebug --stacktrace'
 
       - name: Run unit tests
-        run: gradle testDebugUnitTest
+        run: '"$GRADLE_HOME/bin/gradle" testDebugUnitTest'
 
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
