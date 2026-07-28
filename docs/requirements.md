@@ -71,9 +71,9 @@
 
 #### 基础体验
 - [ ] **主题系统**(详见第十一节):
-  - 5 套内置主题:Material You 默认 / 浅色经典 / 深色经典 / 复古绿 / 极简单色
-  - 用户自定义调色(主色、强调色、圆角)
-  - 实时切换(不重启 App)
+  - **V1.0 范围**:1 套标准界面(Material You 默认),把功能闭环跑通
+  - **接口预留**:`AppTheme` 数据模型 + `ThemeRepository` + `LocalAppTheme` + 颜色/圆角/字体的工程纪律
+  - 设置页保留"主题"入口(暂只 1 项,UI 占位)
 - [ ] 睡眠定时
 - [ ] 5 段均衡器 + 预设(流行/摇滚/古典/爵士/电子)
 - [ ] 倍速播放
@@ -98,11 +98,6 @@
 - [ ] 播放统计(总时长 / 听歌排行)
 - [ ] 备份与恢复(本地数据库)
 - [ ] 应用锁(可选)
-- [ ] **主题包生态**(详见第十一节):
-  - 主题包协议定义(`.xiaoyu-theme` 文件)
-  - 主题导入(本地 + URL)
-  - 主题商店(远程拉取社区主题列表)
-  - 主题管理页面(启用/禁用/编辑)
 
 ### 远期(跨平台)
 - **iOS 版**:Swift + SwiftUI,共享 Subsonic API client 逻辑
@@ -259,7 +254,7 @@ data class Track(
 |---|---|---|
 | **V0.5** | 脚手架、Compose 主题、Media3 基础、本地音乐 | 2-3 周 |
 | **V0.8** | Navidrome Subsonic 客户端(流式播放、远程库) | 3 周 |
-| **V1.0** | 落雪源集成(QuickJS)、多源搜索、播放队列、歌词、EQ | 3-4 周 |
+| **V1.0** | 落雪源集成(QuickJS)、多源搜索、播放队列、歌词、EQ + 主题接口预留(1 套标准 + 抽象层) | 3-4 周 |
 | **V1.1** | **下载管理 + 远程 Navidrome 自动同步(核心差异化)** | 3-4 周 |
 | **V1.2** | 桌面歌词、Widget、推荐 | 2-3 周 |
 | **V2.0** | iOS 版(共享 API client 层) | 6-8 周 |
@@ -285,102 +280,53 @@ data class Track(
    - 公开 / 私有:**公开**(已创建)
 2. **CI**:用 GitHub Actions 吗?(我建议用,免费额度够)**✅ 已配置 release-please**
 3. **CarPlay / Android Auto**:远期,要不要进 V1?
-4. **主题系统范围**:V1.0 先做 5 套内置 + 用户调色,V1.2 再开主题包生态,这样节奏 OK 吗?
+4. **主题系统范围**:**已定**——V1.0 只做 1 套标准 + 接口预留,多主题推后到 V2.0+
 
 ## 十一、UI 主题化设计
 
-### 设计目标
-**UI 不应该是写死的——任何"古板界面"都是反现代的设计。** App 必须支持主题可换、可扩展、可社区化。
+### 设计原则
+**先做正确,后做多样。** V1.0 只做 1 套标准界面(Material You 默认),把播放 / 扫描 / 歌词 / EQ / Navidrome / 下载等所有功能跑通。**但主题接口必须预留到位**——未来做多套主题、社区主题包时,业务代码零改动就能套新主题。
 
-### 三层演进
+### V1.0 范围
+- ✅ **1 套标准主题**:Material You 默认(Material 3 + 动态取色,Android 12+ 走 `dynamicColorScheme`,8.0-11 走静态 fallback)
+- ✅ **接口预留**(关键!):
+  - `AppTheme` 数据模型抽象
+  - `ThemeRepository` / Hilt 注入
+  - `LocalAppTheme` CompositionLocal 全局访问
+  - 颜色 / 圆角 / 字体**全部走 `MaterialTheme.xxx`**,禁止硬编码
+  - 设置页保留"主题"入口(暂只 1 项,UI 占位)
+- ❌ **不做**(全部推后):
+  - 多套内置主题变体
+  - 用户自定义调色
+  - 主题包协议(`.xiaoyu-theme`)
+  - 主题商店
+  - 主题包生态
 
-#### 阶段 1:V1.0 — 内置主题 + 自定义调色
-**5 套内置主题**:
-| 主题 ID | 名称 | 风格 |
-|---|---|---|
-| `material_you` | Material You 默认 | Android 13+ 动态取色,圆角,留白 |
-| `light_classic` | 浅色经典 | 白底,中性灰,低饱和 |
-| `dark_classic` | 深色经典 | Spotify 范,深灰底,弱对比 |
-| `retro_green` | 复古绿 | Winamp 拟物,等宽字体,荧光屏效果 |
-| `mono` | 极简单色 | 黑/白二选,纯文字排版 |
-
-**用户自定义调色**(在主题上覆盖):
-- 主色 / 强调色 / 背景色
-- 圆角幅度(0-24dp)
-- 字体大小缩放(0.85x-1.3x)
-
-**技术要求**:
-- 实时切换(改 StateFlow 即可,Compose 自动重组)
-- 不重启 App
-- 不重新创建 Activity
-
-#### 阶段 2:V1.2 — 主题包生态
-**主题包文件格式**:`.xiaoyu-theme`(实际是 JSON,可附带 zip 资源)
-```json
-{
-  "name": "赛博朋克",
-  "version": "1.0.0",
-  "author": "社区作者",
-  "description": "...",
-  "scheme": {
-    "primary": "#FF00FF",
-    "onPrimary": "#000000",
-    "primaryContainer": "#330033",
-    "secondary": "#00FFFF",
-    "background": "#0A0A14",
-    "surface": "#15151F",
-    "onBackground": "#FFFFFF",
-    ...
-  },
-  "shapes": {
-    "cornerSmall": 4,
-    "cornerMedium": 8,
-    "cornerLarge": 12
-  },
-  "typography": {
-    "displayFont": "Orbitron-Bold",
-    "bodyFont": "Inter"
-  },
-  "background": "asset://backgrounds/cyber-city.png"
-}
-```
-
-**主题包机制**:
-- 用户下载 `.xiaoyu-theme` 文件 → App 一键导入
-- 主题商店页面:远程拉取社区主题列表(GitHub Pages / 自建 API)
-- 主题详情页:预览 + 启用 + 评分
-- 主题管理:启用/禁用/编辑
-
-#### 阶段 3:V2.0+ — 完全动态 UI(谨慎承诺)
-- 主题包可以包含完整 UI 描述(组件级自定义)
-- 类似 Linux 桌面 / KDE Plasma 的主题引擎
-- **技术风险大,先不承诺,等 V1.2 主题包跑顺了再评估**
-
-### 核心数据模型
+### 核心数据模型(预留)
 ```kotlin
+// 主题数据模型
 data class AppTheme(
     val id: String,
     val name: String,
-    val version: String,
-    val author: String,
-    val colorScheme: ColorScheme,      // Material 3 ColorScheme
-    val shapes: Shapes,                // 圆角
-    val typography: Typography,        // 字体
-    val background: Background? = null // 可选背景图/渐变
+    val colorScheme: ColorScheme,    // Material 3 ColorScheme
+    val shapes: Shapes,              // 圆角
+    val typography: Typography,      // 字体
 )
+
+// 主题仓库(V1.0 只内置 1 套,但接口必须这样)
+interface ThemeRepository {
+    val current: StateFlow<AppTheme>
+    val available: StateFlow<List<AppTheme>>  // V1.0 只有 1 项
+    fun setTheme(id: String)
+}
 
 // 全局访问
 val LocalAppTheme = staticCompositionLocalOf<AppTheme> { error("AppTheme not provided") }
 ```
 
-### 主题存储
-- 内置主题:打包在 `assets/themes/*.json`
-- 用户主题:本地 Room 数据库,目录 `files/themes/*.xiaoyu-theme`
-- 远程主题:GitHub Releases / 社区仓库,只缓存元信息,资源按需下载
-
-### 主题切换流程
+### 主题切换流程(预留)
 ```
-用户在设置选主题
+用户在设置选主题(暂只 1 项,UI 占位)
         ↓
 ThemeRepository.setTheme(themeId)
         ↓
@@ -393,14 +339,21 @@ ThemeRepository.setTheme(themeId)
 无需重启 Activity
 ```
 
-### 不写死 UI 的工程实践
-- ❌ 避免:`Color(0xFF1DB954)` 直接写死颜色
-- ✅ 正确:`MaterialTheme.colorScheme.primary`
-- ❌ 避免:`RoundedCornerShape(16.dp)` 直接写死圆角
-- ✅ 正确:`MaterialTheme.shapes.medium`
-- ❌ 避免:`Text("...", fontSize = 14.sp)` 写死字号
-- ✅ 正确:`MaterialTheme.typography.bodyMedium`
-- **每加一个新组件,必须通过主题拿色/圆角/字体,不允许硬编码**
+### 工程纪律(强制执行,任何 PR 违规必须改)
+- ❌ 禁止:`Color(0xFF1DB954)` 硬编码颜色
+- ✅ 强制:`MaterialTheme.colorScheme.primary`
+- ❌ 禁止:`RoundedCornerShape(16.dp)` 硬编码圆角
+- ✅ 强制:`MaterialTheme.shapes.medium`
+- ❌ 禁止:`fontSize = 14.sp` 硬编码字号
+- ✅ 强制:`MaterialTheme.typography.bodyMedium`
+- ❌ 禁止:`Modifier.padding(16.dp)` 硬编码间距
+- ✅ 强制:通过 `LocalSpacing` 或 `MaterialTheme` 拿(预留接口)
+- **Code Review 检查项**:每加一个新组件,色 / 圆角 / 字号 / 间距必须走主题
+
+### 未来扩展(V1.0 完成后,功能跑通后再启动)
+- V1.x 后期:加 2-3 套主题变体(浅色经典 / 深色经典 / 复古绿等),验证接口
+- V2.0+:**主题包协议** `.xiaoyu-theme`(JSON 描述 + 可选资源 zip)+ 主题商店
+- 远期:完全动态 UI(谨慎评估)
 
 ## 十、下一步
 
