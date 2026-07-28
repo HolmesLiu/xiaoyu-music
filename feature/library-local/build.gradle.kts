@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.xiaoyu.music.feature.library"
-    compileSdk = 35
+    compileSdk = 34
     defaultConfig {
         minSdk = 26
     }

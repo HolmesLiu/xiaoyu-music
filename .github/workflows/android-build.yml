@@ -33,7 +33,16 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
         with:
-          packages: 'platform-tools,build-tools;35.0.0,platforms;android-35'
+          packages: 'platform-tools'
+          cmdline-tools-version: '11076708'
+
+      - name: Accept Android SDK licenses
+        run: |
+          yes | sdkmanager --licenses > /dev/null 2>&1 || true
+
+      - name: Install Android build-tools and platform
+        run: |
+          sdkmanager "build-tools;34.0.0" "platforms;android-34"
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
@@ -69,15 +78,6 @@ jobs:
           path: app/build/outputs/apk/debug/*.apk
           retention-days: 30
           if-no-files-found: error
-
-      - name: Upload mapping files
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: mapping-files
-          path: '**/build/outputs/mapping/**/mapping.txt'
-          retention-days: 30
-          if-no-files-found: ignore
 
       - name: Upload build reports
         if: always()
