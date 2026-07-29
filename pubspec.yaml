@@ -1,0 +1,57 @@
+name: xiaoyu_music
+description: "Private music asset management client — local + NAS + Navidrome + Luoxue"
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.12.2
+
+# =============================================================================
+# Phase 1 依赖范围(项目脚手架)
+# 后续 Phase 按需追加:
+#   Phase 2 (本地扫描):  on_audio_query
+#   Phase 3 (播放器):    media_kit, media_kit_libs_android_audio, audio_service
+#   Phase 4 (Navidrome): 已在 dependencies 里预备 dio / xml 这两个
+#   Phase 5 (NAS):       smb / webdav client 插件
+#   Phase 7 (下载):      暂时用 dio,后期评估更稳的方案
+# =============================================================================
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+
+  # ---- State management ----
+  flutter_riverpod: ^2.5.1   # 2.5 系列稳,Riverpod 3 API 还有破坏性变化
+
+  # ---- Database (Drift + SQLite) ----
+  drift: ^2.20.0
+  drift_flutter: ^0.2.0      # 简化 Flutter 集成
+  sqlite3_flutter_libs: ^0.5.24  # 预编译 sqlite3 .so
+  sqlite3: ^2.4.0            # Dart 端 sqlite3 绑定
+
+  # ---- Paths / FS ----
+  path_provider: ^2.1.4
+  path: ^1.9.0
+
+  # ---- Logging ----
+  logger: ^2.4.0
+
+  # ---- HTTP (Phase 4 Navidrome 预备) ----
+  dio: ^5.7.0
+  xml: ^6.5.0                # Subsonic XML 响应解析
+
+  # ---- Crypto (Phase 8 Hash 比对) ----
+  crypto: ^3.0.5
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+  # Code generation for Drift
+  drift_dev: ^2.20.0
+  build_runner: ^2.4.13
+
+flutter:
+  uses-material-design: true
+  # assets 暂时为空,Phase 2 加默认封面图
