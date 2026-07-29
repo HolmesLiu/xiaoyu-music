@@ -7,9 +7,8 @@ environment:
   sdk: ^3.12.2
 
 # =============================================================================
-# Phase 1 依赖范围(项目脚手架)
+# Phase 2 依赖范围(本地音乐扫描 + 核心数据表)
 # 后续 Phase 按需追加:
-#   Phase 2 (本地扫描):  on_audio_query
 #   Phase 3 (播放器):    media_kit, media_kit_libs_android_audio, audio_service
 #   Phase 4 (Navidrome): 已在 dependencies 里预备 dio / xml 这两个
 #   Phase 5 (NAS):       smb / webdav client 插件
@@ -42,6 +41,14 @@ dependencies:
 
   # ---- Crypto (Phase 8 Hash 比对) ----
   crypto: ^3.0.5
+
+  # ---- Phase 2 本地音乐扫描 ----
+  # on_audio_query 2.9.0 用的 on_audio_query_android 1.1.0 缺 namespace
+  # (GitHub issue #165,仍 open),用 root build.gradle 的 plugins.withId 块
+  # 兜底注入。
+  on_audio_query: ^2.9.0
+  on_audio_query_platform_interface: ^1.0.0
+  permission_handler: ^11.3.1 # 运行时权限请求
 
 dev_dependencies:
   flutter_test:

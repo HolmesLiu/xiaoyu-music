@@ -1,4 +1,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Phase 2: 本地音乐扫描需要的权限 -->
+    <!-- Android 13+ (API 33+)  granular media 权限 -->
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+    <!-- Android 12 及以下 fallback -->
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <!-- permission_handler 在某些场景下会请求(比如被永久拒绝后的设置引导) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
     <application
         android:label="xiaoyu_music"
         android:name="${applicationName}"

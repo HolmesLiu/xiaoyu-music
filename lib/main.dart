@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/config/app_config.dart';
 import 'core/logging/app_logger.dart';
 import 'database/app_database.dart';
-import 'ui/screens/welcome_screen.dart';
+import 'ui/screens/library_screen.dart';
 
 /// 启动入口
 ///
@@ -12,14 +12,13 @@ import 'ui/screens/welcome_screen.dart';
 /// 1. 初始化日志
 /// 2. 启动 Drift 数据库
 /// 3. 包裹 Riverpod scope
-/// 4. 启动主题 + 首页
+/// 4. 启动主题 + 首页(本地音乐库,V0.2 替换了 V0.1 的 WelcomeScreen)
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   AppLogger.i('Main', 'Booting ${AppConfig.appName} v${AppConfig.appVersion}');
   AppConfig.logBootConfig();
-  // ignore: unused_local_variable
-  final _db = AppDatabase.bootstrap();
+  AppDatabase.bootstrap();
 
   runApp(
     const ProviderScope(
@@ -40,7 +39,7 @@ class XiaoyuMusicApp extends StatelessWidget {
         colorSchemeSeed: const Color(0xFF4A6CF7),
         useMaterial3: true,
       ),
-      home: const WelcomeScreen(),
+      home: const LibraryScreen(),
     );
   }
 }
